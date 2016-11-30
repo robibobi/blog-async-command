@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace Tcoc.Blog.Async.Command
 {
-
     // Artikel von Stephen Cleary
     // https://msdn.microsoft.com/en-us/magazine/dn630647.aspx
 
@@ -119,6 +118,4 @@ namespace Tcoc.Blog.Async.Command
         public string ErrorMessage => InnerException == null ? null : InnerException.Message;
         public event PropertyChangedEventHandler PropertyChanged;
     }
-
-
 }

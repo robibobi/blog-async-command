@@ -10,7 +10,7 @@ using System.Windows.Input;
 namespace Tcoc.Blog.Async.Command
 {
 
-    // Blog: https://msdn.microsoft.com/en-us/magazine/dn630647.aspx
+    // Artikel von Stephen Cleary: https://msdn.microsoft.com/en-us/magazine/dn630647.aspx
 
     class AsyncCommand : AsyncCommandBase
     {
@@ -77,12 +77,12 @@ namespace Tcoc.Blog.Async.Command
 
         public override bool CanExecute(object parameter)
         {
-            return _canExecuteFunc((TParam)parameter) && (Execution == null || Execution.IsCompleted);
+            return _canExecuteFunc(SaveCast(parameter)) && (Execution == null || Execution.IsCompleted);
         }
 
         public override async Task ExecuteAsync(object parameter)
         {
-            TParam param = (TParam)parameter;
+            TParam param = SaveCast(parameter);
             _cancelCommand.NotifyCommandStarting();
             Execution = new NotifyTaskCompletion(_command(_cancelCommand.Token, param));
             OnPropertyChanged(nameof(Execution));
@@ -94,8 +94,14 @@ namespace Tcoc.Blog.Async.Command
 
         public ICommand CancelCommand => _cancelCommand;
 
-
         public NotifyTaskCompletion Execution { get; private set; }
+
+        private TParam SaveCast(object param)
+        {
+            if(param == null)
+                return default(TParam);
+            return (TParam)param;
+        }
 
     }
 

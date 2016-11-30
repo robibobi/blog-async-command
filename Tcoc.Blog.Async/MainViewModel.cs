@@ -1,41 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Tcoc.Blog.Async.Command;
 
 namespace Tcoc.Blog.Async
 {
-    class MainViewModel
+    class MainViewModel : ViewModelBase
     {
+        public AsyncCommand<string> CalculatePrimesCmd { get; }
 
-        private AsyncCommand<double> _calculatePrimesCmd;
-
-        public AsyncCommand<double> CalculatePrimesCmd => _calculatePrimesCmd; 
+        public List<int> Primes { get; set; }
 
         public MainViewModel()
         {
-            _calculatePrimesCmd = new AsyncCommand<double>(OnCalculatePrimes);
+            CalculatePrimesCmd = new AsyncCommand<string>(OnCalculatePrimes, CanExecuteCalculation);
         }
 
-        private Task OnCalculatePrimes(CancellationToken t, double primeCount)
+        private bool CanExecuteCalculation(string countString)
+        {
+            return !String.IsNullOrEmpty(countString) && Regex.IsMatch(countString, @"^\d+$");
+        }
+
+        private Task OnCalculatePrimes(CancellationToken t, string countString)
         {
             return Task.Factory.StartNew(() =>
             {
-                var primes = GeneratePrimesNaive((int)primeCount);
-                Console.WriteLine($"Calculated {primes.Count} primes");
+                int count = Convert.ToInt32(countString);
+                Primes = GeneratePrimesNaive(t, count)
+                            .Take(1000)
+                            .ToList();
+                RaisePropertyChanged(nameof(Primes));
             });
         }
 
-
-        private static List<int> GeneratePrimesNaive(int n)
+        private static List<int> GeneratePrimesNaive(CancellationToken t, int n)
         {
             List<int> primes = new List<int>();
             primes.Add(2);
             int nextPrime = 3;
-            while (primes.Count < n)
+            while (primes.Count < n && !t.IsCancellationRequested)
             {
                 int sqrt = (int)Math.Sqrt(nextPrime);
                 bool isPrime = true;

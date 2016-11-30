@@ -11,27 +11,43 @@
     <Window.DataContext>
         <local:MainViewModel />
     </Window.DataContext>
-    <Grid>
+    <Grid Margin="50">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="16" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="16" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-        <StackPanel HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Orientation="Horizontal">
+        <TextBlock VerticalAlignment="Center" Text="Enter prime count" />
 
-            <Slider x:Name="PrimeCountSlider"
-                    Width="140"
-                    IsSnapToTickEnabled="True"
-                    Maximum="1500000"
-                    Minimum="1000"
-                    TickFrequency="1"
-                    Value="500000" />
+        <TextBox x:Name="PrimesCountTB" Grid.Column="1" />
 
-            <TextBlock Margin="10,0,10,0" Text="{Binding StringFormat=Number of Primes: 0:, ElementName=PrimeCountSlider, Path=Value}" />
+        <Button Grid.Row="2"
+                Grid.Column="0"
+                Command="{Binding CalculatePrimesCmd, Mode=OneWay}"
+                CommandParameter="{Binding ElementName=PrimesCountTB, Path=Text, UpdateSourceTrigger=PropertyChanged}"
+                Content="Calculate Primes" />
 
-            <Button Width="120"
-                    Command="{Binding CalculatePrimesCmd, Mode=OneWay}"
-                    CommandParameter="{Binding ElementName=PrimeCountSlider, Path=Value}"
-                    Content="Calculate Primes" />
-        </StackPanel>
+        <Button Grid.Row="2"
+                Grid.Column="1"
+                Command="{Binding CalculatePrimesCmd.CancelCommand}"
+                Content="Cancel" />
+
+        <ListView Grid.Row="4"
+                  Grid.ColumnSpan="2"
+                  ItemsSource="{Binding Primes, IsAsync=True}">
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Width="400" ItemWidth="120" />
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
+        </ListView>
 
     </Grid>
 </Window>
